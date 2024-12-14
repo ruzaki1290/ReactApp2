@@ -15,17 +15,17 @@ const App = () => {
   const [reservations, setReservations] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleAreaChange = (event) => {
-    setSelectedArea(event.target.value);
+  const handleAreaChange = (area) => {
+    setSelectedArea(area);
   };
 
-  const handleTimeSlotChange = (event) => {
-    setSelectedTimeSlot(event.target.value);
+  const handleTimeSlotChange = (slot) => {
+    setSelectedTimeSlot(slot);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-  
+
     const isDuplicate = reservations.some(
       (reservation) => reservation.area === selectedArea && reservation.timeSlot === selectedTimeSlot
     );
@@ -33,12 +33,12 @@ const App = () => {
     if (isDuplicate) {
       setErrorMessage('This time slot is already reserved for the selected area.');
     } else if (selectedArea && selectedTimeSlot) {
-        setReservations([...reservations, { area: selectedArea, timeSlot: selectedTimeSlot }]);
-        setSelectedArea('');
-        setSelectedTimeSlot('');
-        setErrorMessage('');
-      }
-    };
+      setReservations([...reservations, { area: selectedArea, timeSlot: selectedTimeSlot }]);
+      setSelectedArea('');
+      setSelectedTimeSlot('');
+      setErrorMessage('');
+    }
+  };
 
   const handleDelete = (index) => {
     const updatedReservations = reservations.filter((_, i) => i !== index);
@@ -63,7 +63,7 @@ const App = () => {
                 key={area}
                 type="button"
                 className={`btn btn-outline-primary ${selectedArea === area ? 'active' : ''}`}
-                onClick={() => setSelectedArea(area)}
+                onClick={() => handleAreaChange(area)}
               >
                 {area}
               </button>
@@ -77,15 +77,22 @@ const App = () => {
                 <h4>Select Time Slot:</h4>
                 <ul className="time-slot-list">
                   {timeSlots.map((slot) => (
-                    <li key={slot}>
-                      <input
-                        type="radio"
-                        name="timeSlot"
-                        value={slot}
-                        checked={selectedTimeSlot === slot}
-                        onChange={handleTimeSlotChange}
-                      />
-                      {slot}
+                    <li
+                      key={slot}
+                      className={`time-slot-item d-flex justify-content-between align-items-center ${selectedTimeSlot === slot ? 'selected' : ''}`}
+                      onClick={() => handleTimeSlotChange(slot)}
+                    >
+                      <span>{slot}</span>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm ml-auto"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTimeSlotChange(slot);
+                        }}
+                      >
+                        Select
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -96,7 +103,7 @@ const App = () => {
           {errorMessage && <div className="alert alert-danger mt-2">{errorMessage}</div>}
           <hr />
           <h5>Reservations:</h5>
-          <ul className="list-group">
+          <ul className="list-group reservations-list">
             {reservations.map((reservation, index) => (
               <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
                 {reservation.area} - {reservation.timeSlot}

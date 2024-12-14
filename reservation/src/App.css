@@ -46,3 +46,23 @@
 .reservations-list li {
   margin: 10px 0;
 }
+
+.time-slot-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.time-slot-item span {
+  margin-right: 2.4em; /* Add this line to push the button to the right */
+}
+
+.time-slot-item.selected {
+  background-color: black;
+  color: white;
+}
