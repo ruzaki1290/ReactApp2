@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -9,118 +9,111 @@ const timeSlots = [
   '3:00pm - 6:00pm'
 ];
 
-export default class App extends Component {
-  state = {
-    selectedArea: '',
-    selectedTimeSlot: '',
-    reservations: []
+const App = () => {
+  const [selectedArea, setSelectedArea] = useState('');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [reservations, setReservations] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleAreaChange = (event) => {
+    setSelectedArea(event.target.value);
   };
 
-  handleAreaChange = (event) => {
-    this.setState({ selectedArea: event.target.value });
+  const handleTimeSlotChange = (event) => {
+    setSelectedTimeSlot(event.target.value);
   };
 
-  handleTimeSlotChange = (event) => {
-    this.setState({ selectedTimeSlot: event.target.value });
-  };
-
-  handleSubmit = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    const { selectedArea, selectedTimeSlot, reservations } = this.state;
   
     const isDuplicate = reservations.some(
       (reservation) => reservation.area === selectedArea && reservation.timeSlot === selectedTimeSlot
     );
 
     if (isDuplicate) {
-      this.setState({ errorMessage: 'This time slot is already reserved for the selected area.' });
+      setErrorMessage('This time slot is already reserved for the selected area.');
     } else if (selectedArea && selectedTimeSlot) {
-      this.setState({
-        reservations: [...reservations, { area: selectedArea, timeSlot: selectedTimeSlot }],
-        selectedArea: '',
-        selectedTimeSlot: '',
-        errorMessage: ''
-      });
-    }
-  };
+        setReservations([...reservations, { area: selectedArea, timeSlot: selectedTimeSlot }]);
+        setSelectedArea('');
+        setSelectedTimeSlot('');
+        setErrorMessage('');
+      }
+    };
 
-  handleDelete = (index) => {
-    const { reservations } = this.state;
+  const handleDelete = (index) => {
     const updatedReservations = reservations.filter((_, i) => i !== index);
-    this.setState({ reservations: updatedReservations });
+    setReservations(updatedReservations);
   };
 
-  render() {
-    const { selectedArea, selectedTimeSlot, reservations, errorMessage } = this.state;
-
-    return (
-      <div className="container-fluid">
-        <div className="row">
-          <div className="bg-dark text-white p-2 text-center">
-            <span className="navbar-brand ml-2">RESERVATION SYSTEM</span>
+  return (
+    <div className="container-fluid">
+      <div className="row">
+        <div className="bg-dark text-white p-2 text-center">
+          <span className="navbar-brand ml-2">RESERVATION SYSTEM</span>
+        </div>
+      </div>
+      <div className="row text-white">
+        <div className="col-3 p-2">
+          <div className="d-grid gap-2">
+            <button type="button" className="btn btn-outline-primary">
+              Home
+            </button>
+            {conservationAreas.map((area) => (
+              <button
+                key={area}
+                type="button"
+                className={`btn btn-outline-primary ${selectedArea === area ? 'active' : ''}`}
+                onClick={() => setSelectedArea(area)}
+              >
+                {area}
+              </button>
+            ))}
           </div>
         </div>
-        <div className="row text-white">
-          <div className="col-3 p-2">
-            <div className="d-grid gap-2">
-              <button type="button" className="btn btn-outline-primary">
-                Home
-              </button>
-              {conservationAreas.map((area) => (
-                <button
-                  key={area}
-                  type="button"
-                  className={`btn btn-outline-primary ${selectedArea === area ? 'active' : ''}`}
-                  onClick={() => this.setState({ selectedArea: area })}
-                >
-                  {area}
-                </button>
-              ))}
+        <div className="col-9 p-2 text-dark">
+          <form onSubmit={handleSubmit} className="reservation-form">
+            <div>
+              <label>
+                <h4>Select Time Slot:</h4>
+                <ul className="time-slot-list">
+                  {timeSlots.map((slot) => (
+                    <li key={slot}>
+                      <input
+                        type="radio"
+                        name="timeSlot"
+                        value={slot}
+                        checked={selectedTimeSlot === slot}
+                        onChange={handleTimeSlotChange}
+                      />
+                      {slot}
+                    </li>
+                  ))}
+                </ul>
+              </label>
             </div>
-          </div>
-          <div className="col-9 p-2 text-dark">
-            <form onSubmit={this.handleSubmit} className="reservation-form">
-              <div>
-                <label>
-                  <h4>Select Time Slot:</h4>
-                  <ul className="time-slot-list">
-                    {timeSlots.map((slot) => (
-                      <li key={slot}>
-                        <input
-                          type="radio"
-                          name="timeSlot"
-                          value={slot}
-                          checked={selectedTimeSlot === slot}
-                          onChange={this.handleTimeSlotChange}
-                        />
-                        {slot}
-                      </li>
-                    ))}
-                  </ul>
-                </label>
-              </div>
-              <button type="submit" className="btn btn-primary mt-2">Reserve</button>
-            </form>
-            {errorMessage && <div className="alert alert-danger mt-2">{errorMessage}</div>}
-            <hr />
-            <h4>Reservations:</h4>
-            <ul className="list-group">
-              {reservations.map((reservation, index) => (
-                <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+            <button type="submit" className="btn btn-primary mt-2">Reserve</button>
+          </form>
+          {errorMessage && <div className="alert alert-danger mt-2">{errorMessage}</div>}
+          <hr />
+          <h5>Reservations:</h5>
+          <ul className="list-group">
+            {reservations.map((reservation, index) => (
+              <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
                 {reservation.area} - {reservation.timeSlot}
                 <button
                   type="button"
                   className="btn btn-danger btn-sm"
-                  onClick={() => this.handleDelete(index)}
+                  onClick={() => handleDelete(index)}
                 >
                   Delete
                 </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default App;
